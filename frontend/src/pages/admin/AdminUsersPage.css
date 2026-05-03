@@ -1,0 +1,84 @@
+/* AdminUsersPage specific */
+.users-role-badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.users-role-badge--admin {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.users-role-badge--user {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.users-deleted-row {
+  opacity: 0.5;
+}
+
+.users-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.users-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.users-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.users-action-btn--freeze {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.users-action-btn--unfreeze {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.users-action-btn--delete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.users-status-badge {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.users-status-badge--active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.users-status-badge--frozen {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.users-status-badge--deleted {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.users-status-badge--default {
+  background: #f1f5f9;
+  color: #64748b;
+}

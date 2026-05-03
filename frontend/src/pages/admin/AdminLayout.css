@@ -1,0 +1,151 @@
+﻿.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+.admin-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.admin-sidebar__brand {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-sidebar__brand-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-sidebar__logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-sidebar__app-name {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.admin-sidebar__email {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.admin-sidebar__nav {
+  flex: 1;
+  padding: 12px 10px;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  margin-bottom: 2px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.admin-nav-link--active {
+  color: #4338ca;
+  background: #eef2ff;
+}
+
+.admin-nav-link__icon-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-sidebar__bottom {
+  padding: 12px 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.admin-sidebar__site-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.admin-sidebar__logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ef4444;
+  transition: background 0.15s;
+}
+
+.admin-sidebar__logout-btn:hover {
+  background: #fef2f2;
+}
+
+/* Content area */
+.admin-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* Loading state */
+.admin-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.admin-spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid #e2e8f0;
+  border-top-color: #6366f1;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+

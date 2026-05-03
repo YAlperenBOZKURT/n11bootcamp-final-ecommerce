@@ -1,0 +1,126 @@
+.variant-form-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.variant-form-panel__title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #475569;
+  margin-bottom: 12px;
+}
+
+.variant-form-panel__field {
+  margin-bottom: 10px;
+}
+
+.variant-form-panel__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.variant-form-panel__attr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.variant-form-panel__attr-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.variant-form-panel__attr-sep {
+  color: #94a3b8;
+}
+
+.variant-form-panel__attr-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  padding: 0;
+  display: flex;
+}
+
+.variant-form-panel__add-attr-btn {
+  width: fit-content;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.variant-form-panel__error {
+  color: #dc2626;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.variant-form-panel__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Shared label / input used inside the panel */
+.variant-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.variant-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.variant-input:focus {
+  border-color: #818cf8;
+}
+
+/* Shared buttons */
+.variant-btn {
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.variant-btn--primary {
+  background: #6366f1;
+  color: #fff;
+}
+
+.variant-btn--secondary {
+  padding: 6px 14px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.variant-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

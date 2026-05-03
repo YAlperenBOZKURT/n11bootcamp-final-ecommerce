@@ -1,0 +1,33 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+  config:
+    import: ""
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  flyway:
+    enabled: true
+
+rabbitmq:
+  exchange:
+    orders: order.events
+  queues:
+    order-confirmed: order.confirmed
+    order-failed: order.failed
+    order-cancelled: order.cancelled
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

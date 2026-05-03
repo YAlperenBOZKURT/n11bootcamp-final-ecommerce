@@ -1,0 +1,132 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+          - id: user-service
+            uri: lb://user-service
+            predicates:
+              - Path=/api/users/**
+
+          - id: product-service
+            uri: lb://product-service
+            predicates:
+              - Path=/api/products/**
+
+          - id: cart-service
+            uri: lb://cart-service
+            predicates:
+              - Path=/api/cart/**
+
+          - id: order-service
+            uri: lb://order-service
+            predicates:
+              - Path=/api/orders/**
+
+          - id: payment-service
+            uri: lb://payment-service
+            predicates:
+              - Path=/api/payments/**
+
+          - id: notification-service
+            uri: lb://notification-service
+            predicates:
+              - Path=/api/notifications/**
+
+          - id: stock-service
+            uri: lb://stock-service
+            predicates:
+              - Path=/api/stocks/**
+
+          - id: coupon-service
+            uri: lb://coupon-service
+            predicates:
+              - Path=/api/coupons/**
+
+          - id: analytics-service
+            uri: lb://analytics-service
+            predicates:
+              - Path=/api/analytics/**
+
+          - id: review-service
+            uri: lb://review-service
+            predicates:
+              - Path=/api/reviews/**
+
+          - id: minio-files
+            uri: http://${MINIO_HOST:minio}:${MINIO_PORT:9000}
+            predicates:
+              - Path=/files/**
+            filters:
+              - StripPrefix=1
+
+jwt:
+  secret: ${JWT_SECRET:ecommerce-secret-key-n11bootcamp-yabozkurt-2025}
+
+gateway:
+  security:
+    public-endpoints:
+      - /api/users/auth/**        # login, register, forgot-password, reset-password
+      - /actuator/**
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /error                    # Spring Boot error handler (403 döngüsünü engelle)
+      - /files/**                 # MinIO dosya erişimi
+    public-get-endpoints:
+      - /api/products/**          # ürün listeleme, detay, arama — giriş gerekmez
+      - /api/products/categories/** # kategori listeleme
+      - /api/stocks/**            # stok bilgisi — ürün detay sayfası için giriş gerekmez
+      - /api/reviews/products/**  # ürün yorumları — giriş gerekmez
+    admin-endpoints:
+      - GET:/api/products/admin/**
+      - POST:/api/products
+      - POST:/api/products/*/image
+      - POST:/api/products/*/images
+      - PUT:/api/products/*
+      - DELETE:/api/products/*
+      - POST:/api/products/categories
+      - PUT:/api/products/categories/**
+      - DELETE:/api/products/categories/**
+      - POST:/api/products/*/variants
+      - PUT:/api/products/*/variants/**
+      - DELETE:/api/products/*/variants/**
+      - POST:/api/stocks/*/add
+      - POST:/api/stocks/variants/*/add
+      - POST:/api/stocks/*/variants/*/init
+      - POST:/api/coupons
+      - PUT:/api/coupons/*
+      - PATCH:/api/coupons/*/active
+      - DELETE:/api/coupons/*
+      - POST:/api/payments/refund
+      - DELETE:/api/reviews/admin/*
+      - GET:/api/analytics/**
+      - POST:/api/analytics/**
+      - PUT:/api/analytics/**
+      - PATCH:/api/analytics/**
+      - DELETE:/api/analytics/**
+      - GET:/api/orders/admin
+      - GET:/api/users/admin/**
+      - PATCH:/api/users/admin/*/freeze
+      - PATCH:/api/users/admin/*/unfreeze
+      - DELETE:/api/users/admin/**
+  cors:
+    allowed-origins:
+      - ${GATEWAY_CORS_ALLOWED_ORIGIN:https://shop.yabozkurt.com}
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    allowed-headers:
+      - "*"
+    allow-credentials: true
+    max-age-seconds: 3600
+
+logging:
+  level:
+    root: INFO
+    com.yabozkurt.n11bootcamp.ecommerce.gateway: INFO
+    org.springframework: WARN

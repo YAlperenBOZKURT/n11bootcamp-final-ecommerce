@@ -1,0 +1,33 @@
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:noreply@example.com}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+rabbitmq:
+  exchange:
+    users: user.events
+  queues:
+    order-confirmed: notification.order.confirmed
+    order-failed: notification.order.failed
+    order-cancelled: notification.order.cancelled
+    user-registered: notification.user.registered
+    password-reset-requested: notification.user.password-reset-requested
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

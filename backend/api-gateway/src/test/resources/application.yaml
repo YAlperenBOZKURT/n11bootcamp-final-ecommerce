@@ -1,0 +1,37 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  config:
+    import: "optional:configserver:"
+
+jwt:
+  secret: ecommerce-secret-key-n11bootcamp-yabozkurt-2025
+
+gateway:
+  security:
+    public-endpoints:
+      - /api/users/auth/**
+      - /actuator/**
+      - /swagger-ui/**
+      - /v3/api-docs/**
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    allowed-headers:
+      - "*"
+    allow-credentials: true
+    max-age-seconds: 3600
+
+eureka:
+  client:
+    enabled: false

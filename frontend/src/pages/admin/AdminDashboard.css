@@ -1,0 +1,63 @@
+.admin-dashboard {
+  padding: 32px;
+}
+
+.admin-dashboard__title {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-dashboard__subtitle {
+  margin: 0 0 32px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.admin-dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* Quick card */
+.quick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.quick-card:hover {
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px);
+}
+
+.quick-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-card__title {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.quick-card__desc {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}

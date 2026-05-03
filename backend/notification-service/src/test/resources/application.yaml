@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false

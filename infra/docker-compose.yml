@@ -1,0 +1,489 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+
+  # ─── INFRASTRUCTURE ────────────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:16
+    container_name: ecommerce-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: ecommerce-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ecommerce-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: ecommerce-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    container_name: ecommerce-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  # ─── OBSERVABILITY ────────────────────────────────────────────────────────
+
+  discovery-service:
+    build:
+      context: ../backend/discovery-service
+      dockerfile: Dockerfile
+    container_name: discovery-service
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  # ─── 2. CONFIG ─────────────────────────────────────────────────────────────
+
+  config-service:
+    build:
+      context: ../backend/config-service
+      dockerfile: Dockerfile
+    container_name: config-service
+    restart: unless-stopped
+    ports:
+      - "8762:8762"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8762/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  # ─── 3. BUSINESS SERVICES ──────────────────────────────────────────────────
+
+  user-service:
+    build:
+      context: ../backend/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: unless-stopped
+    ports:
+      - "8764:8764"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/userdb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  product-service:
+    build:
+      context: ../backend/product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/productdb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      MINIO_HOST: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: products
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  cart-service:
+    build:
+      context: ../backend/cart-service
+      dockerfile: Dockerfile
+    container_name: cart-service
+    restart: unless-stopped
+    ports:
+      - "8766:8766"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  order-service:
+    build:
+      context: ../backend/order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    restart: unless-stopped
+    ports:
+      - "8767:8767"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/orderdb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  payment-service:
+    build:
+      context: ../backend/payment-service
+      dockerfile: Dockerfile
+    container_name: payment-service
+    restart: unless-stopped
+    ports:
+      - "8768:8768"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/paymentdb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-fake}
+      IYZICO_API_KEY: ${IYZICO_API_KEY}
+      IYZICO_SECRET_KEY: ${IYZICO_SECRET_KEY}
+      IYZICO_BASE_URL: ${IYZICO_BASE_URL:-https://sandbox-api.iyzipay.com}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  stock-service:
+    build:
+      context: ../backend/stock-service
+      dockerfile: Dockerfile
+    container_name: stock-service
+    restart: unless-stopped
+    ports:
+      - "8770:8770"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/stockdb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  coupon-service:
+    build:
+      context: ../backend/coupon-service
+      dockerfile: Dockerfile
+    container_name: coupon-service
+    restart: unless-stopped
+    ports:
+      - "8771:8771"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/coupondb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  notification-service:
+    build:
+      context: ../backend/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    restart: unless-stopped
+    ports:
+      - "8769:8769"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  review-service:
+    build:
+      context: ../backend/review-service
+      dockerfile: Dockerfile
+    container_name: review-service
+    restart: unless-stopped
+    ports:
+      - "8773:8773"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/reviewdb
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+  # ─── 4. API GATEWAY ────────────────────────────────────────────────────────
+
+  api-gateway:
+    build:
+      context: ../backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    ports:
+      - "8763:8763"
+    environment:
+      CONFIG_SERVER_URL: http://config-service:8762
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      SPRING_CONFIG_IMPORT: configserver:http://config-service:8762
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      GATEWAY_CORS_ALLOWED_ORIGIN: ${GATEWAY_CORS_ALLOWED_ORIGIN:-https://shop.yabozkurt.com}
+    depends_on:
+      config-service:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      cart-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      stock-service:
+        condition: service_started
+      coupon-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      review-service:
+        condition: service_started
+    logging: *default-logging
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  elasticsearch_data:
+  minio_data:

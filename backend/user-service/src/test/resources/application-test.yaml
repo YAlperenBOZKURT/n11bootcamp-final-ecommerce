@@ -1,0 +1,55 @@
+spring:
+  config:
+    import: ""
+  cloud:
+    config:
+      enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME:test}
+    password: ${DATASOURCE_PASSWORD:test}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+eureka:
+  client:
+    enabled: false
+
+jwt:
+  secret: test-secret-key-n11bootcamp-integration-test-2025-secure
+  expiration: 900000
+  refresh-expiration-days: 7
+
+rate-limit:
+  enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+logging:
+  level:
+    root: ${TEST_LOG_LEVEL_ROOT:INFO}
+    com.yabozkurt.n11bootcamp.ecommerce.user: ${TEST_LOG_LEVEL_APP:INFO}
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.flywaydb: WARN
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN

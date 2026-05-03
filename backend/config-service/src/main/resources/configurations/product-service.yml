@@ -1,0 +1,61 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: ${PRODUCT_MAX_FILE_SIZE:10MB}
+      max-request-size: ${PRODUCT_MAX_REQUEST_SIZE:30MB}
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/product_service}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: false
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
+    connection-timeout: 5s
+    socket-timeout: 30s
+
+rabbitmq:
+  exchange:
+    products: product.events
+    stock: stock.events
+  queues:
+    product-created: product.created
+    stock-status: stock.status
+
+minio:
+  url: http://${MINIO_HOST:localhost}:${MINIO_PORT:9000}
+  public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:products}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

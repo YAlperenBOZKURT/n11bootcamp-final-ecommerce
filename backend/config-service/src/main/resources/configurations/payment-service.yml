@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/paymentdb
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+rabbitmq:
+  exchange:
+    payments: payment.events
+  queues:
+    payment-completed: payment.completed
+    payment-failed: payment.failed
+
+iyzico:
+  api-key: ${IYZICO_API_KEY:your-iyzico-api-key}
+  secret-key: ${IYZICO_SECRET_KEY:your-iyzico-secret-key}
+  base-url: ${IYZICO_BASE_URL:https://sandbox-api.iyzipay.com}
+
+payment:
+  provider: ${PAYMENT_PROVIDER:iyzico}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
