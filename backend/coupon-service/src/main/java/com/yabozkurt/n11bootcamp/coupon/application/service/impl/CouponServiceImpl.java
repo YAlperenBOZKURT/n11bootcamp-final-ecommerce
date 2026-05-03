@@ -218,7 +218,11 @@ public class CouponServiceImpl implements CouponService {
 
         int usageCount = claim == null ? 0 : claim.getUsageCount();
         if (coupon.getPerUserLimit() != null && usageCount >= coupon.getPerUserLimit()) {
-            throw new CouponValidationException("Kullanıcı kupon kullanım limitine ulaştı");
+            throw new CouponValidationException(
+                coupon.getPerUserLimit() == 1
+                    ? "Bu kuponu daha önce kullandınız"
+                    : "Bu kupon için kullanım limitinize ulaştınız"
+            );
         }
 
         BigDecimal discountAmount = orderAmount

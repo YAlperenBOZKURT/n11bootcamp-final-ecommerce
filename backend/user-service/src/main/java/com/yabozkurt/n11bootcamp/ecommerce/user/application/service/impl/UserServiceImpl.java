@@ -125,9 +125,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUserByAdmin(Long id) {
-        User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        user.setStatus(UserStatus.DELETED);
+        userRepository.delete(user);
     }
 
     // -- helpers ---------------------------------------------------------------

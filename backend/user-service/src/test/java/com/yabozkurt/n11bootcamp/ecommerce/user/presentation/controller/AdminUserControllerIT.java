@@ -26,8 +26,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.yabozkurt.n11bootcamp.ecommerce.user.domain.model.enums.UserStatus;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -171,16 +169,14 @@ class AdminUserControllerIT {
     // -- deleteUser ------------------------------------------------------------
 
     @Test
-    void deleteUser_existingUser_softDeletes() throws Exception {
+    void deleteUser_existingUser_removesFromDatabase() throws Exception {
         Long userId = registerUserAndGetId("delete@test.com");
 
         mockMvc.perform(delete("/api/users/admin/{id}", userId).cookie(adminCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
 
-        assertThat(userRepository.findById(userId))
-                .isPresent()
-                .hasValueSatisfying(u -> assertThat(u.getStatus()).isEqualTo(UserStatus.DELETED));
+        assertThat(userRepository.findById(userId)).isEmpty();
     }
 
     @Test

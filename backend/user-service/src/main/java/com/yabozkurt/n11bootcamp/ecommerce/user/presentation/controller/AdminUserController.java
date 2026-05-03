@@ -54,7 +54,7 @@ public class AdminUserController {
         return ResponseEntity.ok(ApiResponse.ok("User activated", null));
     }
 
-    @Operation(summary = "Delete user (soft delete)")
+    @Operation(summary = "Delete user")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUserByAdmin(@PathVariable Long id) {
         userService.deleteUserByAdmin(id);

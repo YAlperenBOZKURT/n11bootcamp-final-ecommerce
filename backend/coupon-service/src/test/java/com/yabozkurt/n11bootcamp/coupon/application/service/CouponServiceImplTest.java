@@ -68,6 +68,52 @@ class CouponServiceImplTest {
     }
 
     @Test
+    void use_shouldThrow_alreadyUsedMessage_whenSingleUseCouponAlreadyUsed() {
+        Coupon coupon = activeCoupon(CouponType.GLOBAL, 10, 100);
+        coupon.setPerUserLimit(1);
+        when(couponRepository.findByCodeIgnoreCaseForUpdate("GLOBAL10")).thenReturn(Optional.of(coupon));
+        when(useRepository.findByOrderIdAndCouponIdAndUserId("ORD-2", 10L, 5L)).thenReturn(Optional.empty());
+
+        CouponClaim claim = new CouponClaim();
+        claim.setCoupon(coupon);
+        claim.setUserId(5L);
+        claim.setUsageCount(1);
+        when(claimRepository.findByCouponIdAndUserIdForUpdate(10L, 5L)).thenReturn(Optional.of(claim));
+
+        UseCouponRequest req = new UseCouponRequest();
+        setField(req, "orderId", "ORD-2");
+        setField(req, "code", "GLOBAL10");
+        setField(req, "orderAmount", BigDecimal.valueOf(200));
+
+        CouponValidationException ex = assertThrows(CouponValidationException.class,
+                () -> service.use(5L, req));
+        assertEquals("Bu kuponu daha önce kullandınız", ex.getMessage());
+    }
+
+    @Test
+    void use_shouldThrow_limitReachedMessage_whenMultiUseCouponExhausted() {
+        Coupon coupon = activeCoupon(CouponType.GLOBAL, 10, 100);
+        coupon.setPerUserLimit(3);
+        when(couponRepository.findByCodeIgnoreCaseForUpdate("GLOBAL10")).thenReturn(Optional.of(coupon));
+        when(useRepository.findByOrderIdAndCouponIdAndUserId("ORD-4", 10L, 5L)).thenReturn(Optional.empty());
+
+        CouponClaim claim = new CouponClaim();
+        claim.setCoupon(coupon);
+        claim.setUserId(5L);
+        claim.setUsageCount(3);
+        when(claimRepository.findByCouponIdAndUserIdForUpdate(10L, 5L)).thenReturn(Optional.of(claim));
+
+        UseCouponRequest req = new UseCouponRequest();
+        setField(req, "orderId", "ORD-4");
+        setField(req, "code", "GLOBAL10");
+        setField(req, "orderAmount", BigDecimal.valueOf(200));
+
+        CouponValidationException ex = assertThrows(CouponValidationException.class,
+                () -> service.use(5L, req));
+        assertEquals("Bu kupon için kullanım limitinize ulaştınız", ex.getMessage());
+    }
+
+    @Test
     void use_shouldBeIdempotent_whenSameOrderIdComesAgain() {
         Coupon coupon = activeCoupon(CouponType.GLOBAL, 10, 100);
         when(couponRepository.findByCodeIgnoreCaseForUpdate("GLOBAL10")).thenReturn(Optional.of(coupon));

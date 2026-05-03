@@ -156,7 +156,6 @@ public class ProductIndexService {
         doc.setBrand(p.getBrand());
         List<String> imgs = p.getImageUrls();
         doc.setImageUrl(imgs.isEmpty() ? null : imgs.get(0));
-        doc.setAttributes(p.getAttributes());
         doc.setStatus(p.getStatus() != null ? p.getStatus().name() : null);
         doc.setCreatedAt(p.getCreatedAt());
         if (p.getVariants() != null) {
@@ -192,7 +191,6 @@ public class ProductIndexService {
         res.setBrand(doc.getBrand());
         res.setPriceFrom(doc.getPriceFrom());
         res.setImageUrl(doc.getImageUrl());
-        res.setAttributes(doc.getAttributes());
         res.setInStock("ACTIVE".equals(doc.getStatus()));
 
         if (doc.getCategoryId() != null) {

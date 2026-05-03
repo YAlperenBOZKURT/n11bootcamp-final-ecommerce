@@ -386,7 +386,6 @@ public class ProductServiceImpl implements ProductService {
         res.setImageUrl(urls.isEmpty() ? null : urls.get(0));
         res.setImageUrls(urls);
         res.setInStock(p.getStatus() == ProductStatus.ACTIVE);
-        res.setAttributes(p.getAttributes());
         res.setStatus(p.getStatus());
         res.setCreatedAt(p.getCreatedAt());
         res.setUpdatedAt(p.getUpdatedAt());

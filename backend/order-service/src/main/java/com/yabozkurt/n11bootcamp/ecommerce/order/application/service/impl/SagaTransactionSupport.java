@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 // Each method uses REQUIRES_NEW, so critical state changes are committed immediately.
 // This keeps order state durable even if later saga steps fail.
 // Kept as a separate Spring bean so transactional proxies work correctly.
+
 @Service
 public class SagaTransactionSupport {
 

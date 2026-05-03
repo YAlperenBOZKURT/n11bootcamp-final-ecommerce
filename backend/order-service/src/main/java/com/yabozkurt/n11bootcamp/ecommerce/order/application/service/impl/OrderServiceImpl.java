@@ -142,19 +142,18 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Payment is captured from this point.
-        // Remaining steps are best-effort and we do not roll back payment.
         log.info("[SAGA] Payment captured for order={} — starting post-payment finalization.", orderNumber);
 
-        // Step 6: Confirm stock deduction (best-effort).
+        // Step 6: Confirm stock deduction
         confirmReservedStock(reservedItems, orderNumber);
 
-        // Step 7: Consume coupon (best-effort).
+        // Step 7: Consume coupon
         if (coupon.isApplied()) {
             consumeCoupon(request.getCouponCode(), userId, orderNumber, totalAmount);
         }
 
         // Step 8: Mark order CONFIRMED.
-        // If this fails after payment capture, we log critical and ask for manual reconciliation.
+        // If this fails after payment capture, we log critical
         
         Order confirmed;
         try {

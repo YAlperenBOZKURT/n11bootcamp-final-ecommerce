@@ -44,11 +44,6 @@ spring:
             predicates:
               - Path=/api/coupons/**
 
-          - id: analytics-service
-            uri: lb://analytics-service
-            predicates:
-              - Path=/api/analytics/**
-
           - id: review-service
             uri: lb://review-service
             predicates:
@@ -67,7 +62,7 @@ jwt:
 gateway:
   security:
     public-endpoints:
-      - /api/users/auth/**        # login, register, forgot-password, reset-password
+      - /api/users/auth/**        # login, register, reset-password
       - /actuator/**
       - /swagger-ui/**
       - /v3/api-docs/**
@@ -100,11 +95,6 @@ gateway:
       - DELETE:/api/coupons/*
       - POST:/api/payments/refund
       - DELETE:/api/reviews/admin/*
-      - GET:/api/analytics/**
-      - POST:/api/analytics/**
-      - PUT:/api/analytics/**
-      - PATCH:/api/analytics/**
-      - DELETE:/api/analytics/**
       - GET:/api/orders/admin
       - GET:/api/users/admin/**
       - PATCH:/api/users/admin/*/freeze

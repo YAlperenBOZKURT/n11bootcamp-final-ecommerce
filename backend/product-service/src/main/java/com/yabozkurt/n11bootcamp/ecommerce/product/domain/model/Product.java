@@ -8,9 +8,7 @@ import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "products")
@@ -36,10 +34,6 @@ public class Product {
     @Type(JsonBinaryType.class)
     @Column(name = "image_urls", columnDefinition = "jsonb")
     private List<String> imageUrls = new ArrayList<>();
-
-    @Type(JsonBinaryType.class)
-    @Column(columnDefinition = "jsonb")
-    private Map<String, String> attributes = new HashMap<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -71,8 +65,6 @@ public class Product {
     public void setBrand(String brand) { this.brand = brand; }
     public List<String> getImageUrls() { return imageUrls != null ? imageUrls : Collections.emptyList(); }
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls != null ? imageUrls : new ArrayList<>(); }
-    public Map<String, String> getAttributes() { return attributes; }
-    public void setAttributes(Map<String, String> attributes) { this.attributes = attributes; }
     public ProductStatus getStatus() { return status; }
     public void setStatus(ProductStatus status) { this.status = status; }
     public List<ProductVariant> getVariants() { return variants; }

@@ -15,7 +15,6 @@ CREATE TABLE products (
     description TEXT,
     brand       VARCHAR(100),
     image_urls  JSONB DEFAULT '[]',
-    attributes  JSONB DEFAULT '{}',
     status      VARCHAR(20) NOT NULL DEFAULT 'PASSIVE',
     created_at  TIMESTAMP DEFAULT NOW(),
     updated_at  TIMESTAMP DEFAULT NOW()
@@ -23,7 +22,6 @@ CREATE TABLE products (
 
 CREATE INDEX idx_products_category_id  ON products(category_id);
 CREATE INDEX idx_products_status       ON products(status);
-CREATE INDEX idx_products_attributes   ON products USING GIN(attributes);
 
 CREATE TABLE product_variants (
     id                 BIGSERIAL PRIMARY KEY,
@@ -59,67 +57,67 @@ SELECT setval('categories_id_seq', 7);
 
 -- ─── SEED: Ürünler ────────────────────────────────────────────────────────────
 
-INSERT INTO products (id, category_id, name, description, brand, image_urls, attributes, status) VALUES
+INSERT INTO products (id, category_id, name, description, brand, image_urls, status) VALUES
 
 -- ══ KADIN GİYİM ══════════════════════════════════════════════════════════════
-(1,  1, 'Çiçekli Midi Elbise',         'Yazlık çiçek desenli midi elbise, viskon kumaş, şık ve rahat kesim.',      'Mavi',            '["https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(2,  1, 'Basic Oversize Bluz',         'Günlük kullanım için oversize kesim, %100 pamuk kumaş.',                   'Koton',           '["https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(3,  1, 'Yüksek Bel Skinny Jean',      'Yüksek bel, dar paça denim pantolon, esnek yapı.',                        'LC Waikiki',      '["https://images.unsplash.com/photo-1542295669297-4d352b042bca?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(4,  1, 'Baskılı Crop Top',            'Yazlık baskılı crop tişört, bel üstü kesim.',                             'DeFacto',         '["https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(5,  1, 'Saten Gece Elbisesi',         'Özel günler için saten midi elbise, ince askılı kesim.',                  'Twist',           '["https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(6,  1, 'Triko Kazak',                 'Kışlık slim fit triko kazak, yüksek yaka.',                               'Mango',           '["https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(7,  1, 'Pileli Mini Etek',            'Tenis etekten ilham alan pileli mini etek, yüksek bel.',                  'Zara',            '["https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(8,  1, 'Keten Gömlek',                'Yazlık oversize keten gömlek, düğmeli yaka.',                             'H&M',             '["https://images.unsplash.com/photo-1594938374182-a55e3b4f6d4c?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
+(1,  1, 'Çiçekli Midi Elbise',         'Yazlık çiçek desenli midi elbise, viskon kumaş, şık ve rahat kesim.',      'Mavi',            '["https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(2,  1, 'Basic Oversize Bluz',         'Günlük kullanım için oversize kesim, %100 pamuk kumaş.',                   'Koton',           '["https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(3,  1, 'Yüksek Bel Skinny Jean',      'Yüksek bel, dar paça denim pantolon, esnek yapı.',                        'LC Waikiki',      '["https://images.unsplash.com/photo-1542295669297-4d352b042bca?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(4,  1, 'Baskılı Crop Top',            'Yazlık baskılı crop tişört, bel üstü kesim.',                             'DeFacto',         '["https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(5,  1, 'Saten Gece Elbisesi',         'Özel günler için saten midi elbise, ince askılı kesim.',                  'Twist',           '["https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(6,  1, 'Triko Kazak',                 'Kışlık slim fit triko kazak, yüksek yaka.',                               'Mango',           '["https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(7,  1, 'Pileli Mini Etek',            'Tenis etekten ilham alan pileli mini etek, yüksek bel.',                  'Zara',            '["https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(8,  1, 'Keten Gömlek',                'Yazlık oversize keten gömlek, düğmeli yaka.',                             'H&M',             '["https://images.unsplash.com/photo-1594938374182-a55e3b4f6d4c?w=400&q=80"]'::jsonb, 'ACTIVE'),
 
 -- ══ ERKEK GİYİM ══════════════════════════════════════════════════════════════
-(9,  2, 'Slim Fit Oxford Gömlek',      'Slim fit, düz renk oxford gömlek, iş ve günlük kullanıma uygun.',         'Mavi',            '["https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(10, 2, 'Regular Fit Chino Pantolon',  'Her günün pantolonu, esnek kemer.',                                       'Koton',           '["https://images.unsplash.com/photo-1602810316498-ab67cf68c8e1?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(11, 2, 'Oversize Baskılı Tişört',     'Oversize grafik baskılı tişört, %100 pamuk.',                             'Pull&Bear',       '["https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(12, 2, 'Slim Fit Blazer',             'Şık slim fit blazer ceket, keten karışımı.',                              'Zara Man',        '["https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(13, 2, 'Jogger Eşofman Altı',         'Günlük konforlu jogger, büzgülü paça.',                                   'Nike',            '["https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(14, 2, 'Kapüşonlu Sweatshirt',        'Kapüşonlu, kanguru cepli sweatshirt, polar iç.',                         'DeFacto',         '["https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(15, 2, 'Slim Fit Kot Pantolon',       'Slim fit, koyu indigo denim, 5 cepli.',                                   'Mavi',            '["https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(16, 2, 'Rüzgarlık Mont',              'Hafif, su itici rüzgarlık, kapüşonlu.',                                   'Columbia',        '["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
+(9,  2, 'Slim Fit Oxford Gömlek',      'Slim fit, düz renk oxford gömlek, iş ve günlük kullanıma uygun.',         'Mavi',            '["https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(10, 2, 'Regular Fit Chino Pantolon',  'Her günün pantolonu, esnek kemer.',                                       'Koton',           '["https://images.unsplash.com/photo-1602810316498-ab67cf68c8e1?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(11, 2, 'Oversize Baskılı Tişört',     'Oversize grafik baskılı tişört, %100 pamuk.',                             'Pull&Bear',       '["https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(12, 2, 'Slim Fit Blazer',             'Şık slim fit blazer ceket, keten karışımı.',                              'Zara Man',        '["https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(13, 2, 'Jogger Eşofman Altı',         'Günlük konforlu jogger, büzgülü paça.',                                   'Nike',            '["https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(14, 2, 'Kapüşonlu Sweatshirt',        'Kapüşonlu, kanguru cepli sweatshirt, polar iç.',                         'DeFacto',         '["https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(15, 2, 'Slim Fit Kot Pantolon',       'Slim fit, koyu indigo denim, 5 cepli.',                                   'Mavi',            '["https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(16, 2, 'Rüzgarlık Mont',              'Hafif, su itici rüzgarlık, kapüşonlu.',                                   'Columbia',        '["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=80"]'::jsonb, 'ACTIVE'),
 
 -- ══ ÇOCUK GİYİM ══════════════════════════════════════════════════════════════
-(17, 3, 'Çocuk Baskılı Pijama Takımı', 'Pamuklu yumuşak pijama takımı, sevimli baskı.',                          'LC Waikiki',      '["https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(18, 3, 'Kız Çocuğu Fiyonklu Elbise', 'Özel günler için fiyonklu elbise, tül etek.',                             'Zara Kids',       '["https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(19, 3, 'Erkek Çocuk Eşofman Takımı', 'İki parçalı pamuklu eşofman, baskılı.',                                   'H&M Kids',        '["https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(20, 3, 'Bebek Tulum',                 'Organik pamuk bebek tulumu, metal çıtçıtlı.',                             'Mothercare',      '["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
+(17, 3, 'Çocuk Baskılı Pijama Takımı', 'Pamuklu yumuşak pijama takımı, sevimli baskı.',                          'LC Waikiki',      '["https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(18, 3, 'Kız Çocuğu Fiyonklu Elbise', 'Özel günler için fiyonklu elbise, tül etek.',                             'Zara Kids',       '["https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(19, 3, 'Erkek Çocuk Eşofman Takımı', 'İki parçalı pamuklu eşofman, baskılı.',                                   'H&M Kids',        '["https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(20, 3, 'Bebek Tulum',                 'Organik pamuk bebek tulumu, metal çıtçıtlı.',                             'Mothercare',      '["https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&q=80"]'::jsonb, 'ACTIVE'),
 
 -- ══ TELEFON & AKSESUARLAR ════════════════════════════════════════════════════
-(21, 4, 'Samsung Galaxy S24 256GB',    '6.2" Dynamic AMOLED, Snapdragon 8 Gen 3, 50MP kamera, Galaxy AI.',       'Samsung',         '["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(22, 4, 'Apple iPhone 15',             'A16 Bionic, 6.1" Super Retina XDR, 48MP kamera sistemi.',                'Apple',           '["https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(23, 4, 'Xiaomi Redmi Note 13 Pro',    'Snapdragon 7s Gen 2, 200MP kamera, 5000mAh pil.',                        'Xiaomi',          '["https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(24, 4, 'Apple iPhone 15 Pro Max',     'A17 Pro, 6.7" ProMotion, 5x optik zoom, titanyum çerçeve.',              'Apple',           '["https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(25, 4, 'Apple AirPods Pro 2. Nesil',  'Aktif gürültü engelleme, Adaptif Ses, USB-C şarj kutusu.',               'Apple',           '["https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(26, 4, 'Samsung Galaxy Tab S9 128GB', '11" AMOLED, Snapdragon 8 Gen 2, S Pen dahil, IP68.',                     'Samsung',         '["https://images.unsplash.com/photo-1551355738-1875b8c8c745?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(27, 4, 'Google Pixel 8',              'Google Tensor G3, 50MP kamera, 7 yıl güncelleme.',                       'Google',          '["https://images.unsplash.com/photo-1598327105854-d8f3c0f0c0bc?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(28, 4, 'Huawei Watch GT 4',           'Akıllı saat, 14 gün pil ömrü, sağlık takibi.',                           'Huawei',          '["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
+(21, 4, 'Samsung Galaxy S24 256GB',    '6.2" Dynamic AMOLED, Snapdragon 8 Gen 3, 50MP kamera, Galaxy AI.',       'Samsung',         '["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(22, 4, 'Apple iPhone 15',             'A16 Bionic, 6.1" Super Retina XDR, 48MP kamera sistemi.',                'Apple',           '["https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(23, 4, 'Xiaomi Redmi Note 13 Pro',    'Snapdragon 7s Gen 2, 200MP kamera, 5000mAh pil.',                        'Xiaomi',          '["https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(24, 4, 'Apple iPhone 15 Pro Max',     'A17 Pro, 6.7" ProMotion, 5x optik zoom, titanyum çerçeve.',              'Apple',           '["https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(25, 4, 'Apple AirPods Pro 2. Nesil',  'Aktif gürültü engelleme, Adaptif Ses, USB-C şarj kutusu.',               'Apple',           '["https://images.unsplash.com/photo-1580910051074-3eb694886505?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(26, 4, 'Samsung Galaxy Tab S9 128GB', '11" AMOLED, Snapdragon 8 Gen 2, S Pen dahil, IP68.',                     'Samsung',         '["https://images.unsplash.com/photo-1551355738-1875b8c8c745?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(27, 4, 'Google Pixel 8',              'Google Tensor G3, 50MP kamera, 7 yıl güncelleme.',                       'Google',          '["https://images.unsplash.com/photo-1598327105854-d8f3c0f0c0bc?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(28, 4, 'Huawei Watch GT 4',           'Akıllı saat, 14 gün pil ömrü, sağlık takibi.',                           'Huawei',          '["https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80"]'::jsonb, 'ACTIVE'),
 
 -- ══ AYAKKABI ═════════════════════════════════════════════════════════════════
-(29, 5, 'Nike Air Max 270',            'Hafif koşu ve günlük kullanım, büyük Air birimi.',                        'Nike',            '["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(30, 5, 'Adidas Classic Leather Sneaker','Klasik deri spor ayakkabı, zamansız tasarım.',                          'Adidas',          '["https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(31, 5, 'Yüksek Topuklu Stiletto',     'Sivri burunlu, 10cm topuklu, özel gün stiletti.',                        'Aldo',            '["https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(32, 5, 'Columbia Yürüyüş Botu',       'Su geçirmez, yüksek bilekli, Gore-Tex membran.',                         'Columbia',        '["https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(33, 5, 'Zara Platform Loafer',        'Kalın tabanlı, metal tokalı loafer, trend model.',                       'Zara',            '["https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(34, 5, 'Nike Basketbol Ayakkabısı',   'Yüksek performanslı, yüksek bilekli basketbol ayakkabısı.',              'Nike',            '["https://images.unsplash.com/photo-1556906781-9a412961a28c?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(35, 5, 'Converse Chuck Taylor All Star','İkonik bez spor ayakkabı, kauçuk taban.',                              'Converse',        '["https://images.unsplash.com/photo-1562183241-b937e95585b6?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(36, 5, 'New Balance 574',             'Retro koşu stili, EVA taban, suede detaylar.',                           'New Balance',     '["https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
+(29, 5, 'Nike Air Max 270',            'Hafif koşu ve günlük kullanım, büyük Air birimi.',                        'Nike',            '["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(30, 5, 'Adidas Classic Leather Sneaker','Klasik deri spor ayakkabı, zamansız tasarım.',                          'Adidas',          '["https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(31, 5, 'Yüksek Topuklu Stiletto',     'Sivri burunlu, 10cm topuklu, özel gün stiletti.',                        'Aldo',            '["https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(32, 5, 'Columbia Yürüyüş Botu',       'Su geçirmez, yüksek bilekli, Gore-Tex membran.',                         'Columbia',        '["https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(33, 5, 'Zara Platform Loafer',        'Kalın tabanlı, metal tokalı loafer, trend model.',                       'Zara',            '["https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(34, 5, 'Nike Basketbol Ayakkabısı',   'Yüksek performanslı, yüksek bilekli basketbol ayakkabısı.',              'Nike',            '["https://images.unsplash.com/photo-1556906781-9a412961a28c?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(35, 5, 'Converse Chuck Taylor All Star','İkonik bez spor ayakkabı, kauçuk taban.',                              'Converse',        '["https://images.unsplash.com/photo-1562183241-b937e95585b6?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(36, 5, 'New Balance 574',             'Retro koşu stili, EVA taban, suede detaylar.',                           'New Balance',     '["https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80"]'::jsonb, 'ACTIVE'),
 
 -- ══ SPOR & OUTDOOR ════════════════════════════════════════════════════════════
-(37, 6, 'Decathlon Yoga Matı 6mm',     'Anti-slip TPE yüzey, 6mm koruma, taşıma askılı.',                        'Decathlon',       '["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(38, 6, 'Nutrend Protein Shaker 700ml','BPA free, sızdırmaz kapak, ölçüm skalası.',                              'Nutrend',         '["https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(39, 6, 'Outdoor Research Kayak Montu','Polar astar, rüzgar ve su geçirmez, kayak montu.',                       'Outdoor Research','["https://images.unsplash.com/photo-1520209759809-a9bcb6cb3241?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(40, 6, 'Garmin Forerunner 265 GPS',   'Koşu ve triatlon için GPS akıllı saat, AMOLED ekran.',                   'Garmin',          '["https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
+(37, 6, 'Decathlon Yoga Matı 6mm',     'Anti-slip TPE yüzey, 6mm koruma, taşıma askılı.',                        'Decathlon',       '["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(38, 6, 'Nutrend Protein Shaker 700ml','BPA free, sızdırmaz kapak, ölçüm skalası.',                              'Nutrend',         '["https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(39, 6, 'Outdoor Research Kayak Montu','Polar astar, rüzgar ve su geçirmez, kayak montu.',                       'Outdoor Research','["https://images.unsplash.com/photo-1520209759809-a9bcb6cb3241?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(40, 6, 'Garmin Forerunner 265 GPS',   'Koşu ve triatlon için GPS akıllı saat, AMOLED ekran.',                   'Garmin',          '["https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=400&q=80"]'::jsonb, 'ACTIVE'),
 
 -- ══ BİLGİSAYAR & TABLET ══════════════════════════════════════════════════════
-(41, 7, 'Apple MacBook Air M2 13"',    'Apple M2 çip, 13.6" Liquid Retina, 18 saat pil.',                        'Apple',           '["https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(42, 7, 'Apple MacBook Pro M3 Pro 14"','Apple M3 Pro çip, 14.2" Liquid Retina XDR.',                             'Apple',           '["https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(43, 7, 'Lenovo ThinkPad X1 Carbon Gen 11','Intel Core i7-1365U, 14" IPS, 1.12kg.',                             'Lenovo',          '["https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(44, 7, 'Asus ROG Strix G16 Gaming',   'Intel Core i9-13980HX, RTX 4070/4080, 32GB DDR5, 165Hz QHD.',            'Asus',            '["https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(45, 7, 'Dell UltraSharp 27" 4K Monitor','IPS panel, 3840x2160, USB-C 90W, sRGB %100.',                         'Dell',            '["https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE'),
-(46, 7, 'Logitech MX Master 3S Mouse', 'Sessiz tıklama, 8K DPI, ergonomik tasarım, çok cihaz desteği.',          'Logitech',        '["https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&q=80"]'::jsonb, '{}'::jsonb, 'ACTIVE');
+(41, 7, 'Apple MacBook Air M2 13"',    'Apple M2 çip, 13.6" Liquid Retina, 18 saat pil.',                        'Apple',           '["https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(42, 7, 'Apple MacBook Pro M3 Pro 14"','Apple M3 Pro çip, 14.2" Liquid Retina XDR.',                             'Apple',           '["https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(43, 7, 'Lenovo ThinkPad X1 Carbon Gen 11','Intel Core i7-1365U, 14" IPS, 1.12kg.',                             'Lenovo',          '["https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(44, 7, 'Asus ROG Strix G16 Gaming',   'Intel Core i9-13980HX, RTX 4070/4080, 32GB DDR5, 165Hz QHD.',            'Asus',            '["https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(45, 7, 'Dell UltraSharp 27" 4K Monitor','IPS panel, 3840x2160, USB-C 90W, sRGB %100.',                         'Dell',            '["https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&q=80"]'::jsonb, 'ACTIVE'),
+(46, 7, 'Logitech MX Master 3S Mouse', 'Sessiz tıklama, 8K DPI, ergonomik tasarım, çok cihaz desteği.',          'Logitech',        '["https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&q=80"]'::jsonb, 'ACTIVE');
 
 SELECT setval('products_id_seq', 46);
 
@@ -413,21 +411,6 @@ INSERT INTO product_variants (product_id, sku, attributes, price, original_price
 
 SELECT setval('products_id_seq', 46);
 SELECT setval('product_variants_id_seq', (SELECT MAX(id) FROM product_variants));
-
--- ─── DUMMY DATA ENRICHMENT (V1 içine alındı) ────────────────────────────────
-
-UPDATE products
-SET attributes = CASE category_id
-    WHEN 1 THEN '{"targetGender":"Kadın","season":"4 mevsim","fit":"Regular"}'::jsonb
-    WHEN 2 THEN '{"targetGender":"Erkek","season":"4 mevsim","fit":"Regular"}'::jsonb
-    WHEN 3 THEN '{"targetGender":"Çocuk","season":"4 mevsim","fit":"Regular"}'::jsonb
-    WHEN 4 THEN '{"warranty":"24 ay","region":"TR"}'::jsonb
-    WHEN 5 THEN '{"targetUse":"Günlük","season":"4 mevsim"}'::jsonb
-    WHEN 6 THEN '{"targetUse":"Spor","season":"4 mevsim"}'::jsonb
-    WHEN 7 THEN '{"warranty":"24 ay","region":"TR"}'::jsonb
-    ELSE '{"note":"seed"}'::jsonb
-END
-WHERE attributes = '{}'::jsonb;
 
 UPDATE product_variants
 SET attributes = '{"package":"Standart"}'::jsonb
