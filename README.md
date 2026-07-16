@@ -1,6 +1,5 @@
-# n11 Bootcamp Final E-Commerce Project
+# E-Commerce Project
 
-Live Project: [https://shop.yabozkurt.com](https://shop.yabozkurt.com)
 
 <details open>
 <summary><strong>English</strong></summary>
